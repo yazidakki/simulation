@@ -31,8 +31,8 @@ def calculate_european_option(S, K, T, r, sigma, option_type):
 
 st.set_page_config(page_title='Application Web de Simulation')
 # Création des onglets
-st.header('choisir une simulation svp')
-tab1, tab2,tab3,tab4= st.tabs([" Monte Carlo ",  " Options Européenes(Put & Call)"," Mouvement brownien standard","Mouvement brownien geometrique"])
+st.header('choisir une simulation svp💹')
+tab1, tab2,tab3,tab4= st.tabs([" Mouvement brownien standard📊","Mouvement brownien geometrique📉"," Monte Carlo📉 ",  " Options Européenes(Put & Call)🪙"])
 # Initialisation de st.session_state si ce n'est pas déjà fait
 if 'simulation_results' not in st.session_state:
     st.session_state['simulation_results'] = None
@@ -43,15 +43,17 @@ def fetch_stock_data(ticker_symbol):
     df = yf.download(ticker_symbol, start=start_date, end=end_date)
     return df['Close'][-1]
 
-with tab1:
-    st.header('Simulation Monte Carlo des prix futurs Apple Inc. (AAPL)')
+with tab3:
+    st.header("Entrez les paramétres s'il vous plait::key:")
 
     # Widgets for Monte Carlo simulation
-    start_date = st.date_input('Start Date', datetime(2017, 1, 3), key='mc_start_date')
-    end_date = st.date_input('End Date', datetime(2017, 11, 20), key='mc_end_date')
-    num_simulations = st.number_input('Number of Simulations', 100, 10000, 1000, key='mc_num_simulations')
-    num_days = st.number_input('Days to Forecast', 10, 365, 252, key='mc_num_days')
-    if st.button('Run Monte Carlo Simulation', key='mc_run_simulations'):
+    
+    num_simulations = st.slider('Nombre de simulation',min_value=1, max_value=1000, value=50, step=1 )
+
+    num_days =  st.slider('jours de prévisions', min_value=0, max_value=100, value=50, step=1)
+    start_date = st.date_input('date de début', datetime(2014, 1, 3), key='mc_start_date')
+    end_date = st.date_input('date de fin', datetime(2014, 11, 20), key='mc_end_date')
+    if st.button('cliquez(pour faire la simulation)', key='mc_run_simulations'):
         # Fetching stock data
         prices = web.DataReader('AAPL', 'av-daily', start_date, end_date, api_key='YOUR_API_KEY')['close']
         last_price = prices[-1]
@@ -82,43 +84,45 @@ with tab1:
         plt.ylabel('Price')
         st.pyplot(plt)
 
-with tab2:
-    st.header("Simulation d'options Européenes(Put & Call)")
+with tab4:
+    st.header("Entrez les paramétres s'il vous plait: :key:")
     # Input fields for the European options simulation
     stock_ticker = st.text_input("Enter Stock Ticker", "AAPL", key='option_ticker').upper()
     S = fetch_real_time_price(stock_ticker)
-    K = st.number_input("Strike Price (K)", value=100.0, key='option_strike')
+  
+    K = st.slider("prix de l'exercice (K)", min_value=0, max_value=1000, value=10, step=1)
     T = st.number_input("Time to Expiration (T) in Years", value=1.0, key='option_time')
-    r = st.number_input("Risk-Free Rate (r)", value=0.01, key='option_rate')
-    sigma = st.number_input("Volatility (σ)", value=0.2, key='option_volatility')
-    option_type = st.selectbox("Type of Option", ["Call", "Put"], key='option_type')
+    r = st.number_input("taux sans risque(r)", value=0.01, key='option_rate')
+    
+    sigma = st.number_input("Volattilité (σ)", value=0.2, key='option_volatility')
+    option_type = st.selectbox("Type de l'option", ["Call", "Put"], key='option_type')
 
     # Calculate option price button
-    if st.button(f"Calculate {option_type} Option Price", key='calculate_option'):
+    if st.button(f"Calculer le prix du {option_type} de l'Option ", key='calculate_option'):
         # European option price calculation
         option_price = calculate_european_option(S, K, T, r, sigma, option_type)
-        st.success(f"The price of the {option_type} option is: {option_price:.2f}")
-with tab3:
+        st.success(f"Le prix du  {option_type} de l'option est: {option_price:.2f}")
+st.markdown(
+    """
+---
+
+ Realisé par YAZID AKKI                
+
+    """
+)
+with tab1:
+    
     # st.set_page_config(page_icon=":game_die:", page_title="Aboulaala Maria")
     # st.header(':one: Simulation du mouvement brownien standard')
 
-    with st.expander("Introduction:"):
+   
         
-        st.markdown("""
-
-        Un processus stochastique est une collection de variables aleatoires indicées {$W_t$}, ou $t \in T$  
-        Un processus stochastique W : [0, +$\infty$[ x $\mathbb{R}$ $\longrightarrow$ $\mathbb{R}$ est mouvement brownien standard si: \n
-        - $W_0$ = 0
-        - Pour tout s$\leq$t , $W_t$ - $W_{t-1}$ suit la loi $\mathcal{N}$(0,t-s)
-        - Pour tout n$\geq$1 , et tous $t_0$ = 0 < $t_1$ < ...< $t_n$, les accroissement ($W_{{t_i}+1}$ - $W_{t_i}$ : 0 $\leq$ i $\leq$ n-1) sont **independantes**.
-        En d'autres termes, pour tout $t_0$, $W_t$ $\sim$ $\mathcal{N}$(0,t), les trajectoires de $W_t$ ,  $t_0$ sont presque surement continues.
-                    """
-        )
-
+        
     st.subheader('Entrer le parametres de la simulation: :key:')
     with st.form(key="my_form"):
-        d = st.number_input('Le nombre de simulation', step=1,min_value=1 )
-        n = st.number_input('La periode', step=1, min_value=200)
+        
+        d = st.slider('Le nombre de simulation', min_value=1, max_value=1000, value=50, step=1 )
+        n = st.slider('La periode', min_value=1, max_value=250, value=50, step=1)
         
 
         st.form_submit_button("Simuler")
@@ -145,64 +149,23 @@ with tab3:
 
 
 
-    st.subheader("Mon code : :female-technologist: ")
-
-    code = '''times = np.linspace(0. , T, n)
-    dt = times[1] - times[0]
-    dB = np.sqrt(dt)* np.random.normal(size=(n-1,d))
-    B0 = np.zeros(shape=(1, d))
-    B = np.concatenate((B0, np.cumsum(dB, axis=0)) , axis = 0)
-    plt.plot(times, B)
-    figure=plt.show()
-    '''
-    st.code(code, 
-
-    language='python')
-
-
-
-
-    st.markdown(
-        """
-    ---
-
-    Realisé par Aboulaala Maria                  
     
-        """
-    )
 
 
 
 
 #Soit ( $\Omega$, $\mathcal{F}$, $\mathbb{F}$, $\mathcal{P}$) un espace probabilisé filtré \n
-with tab4:
-    # st.set_page_config(page_icon="🐤", page_title="Aboulaala Maria")
-    # st.header(':two: Simulation du mouvement brownien geometrique')
-
-    with st.expander("Introduction:"):
-        st.markdown("""
-        Un processus stochastique {$X$($t$) : t$\geq$0 } est appele un mouvement brownien geometrique s'il satisfait l'equation differentielle stochastique  \n
-        > d$S_t$ = $\mu$($S_t$)dt +   $\sigma$($S_t$)d$W_t$ \n
-        où $W_t$ est un mouvement brownien standard,  $\mu$ $\in$ $\mathbb{R}$ et $\sigma$ > 0, De plus il est bien connu que la solution unique de cette equation est \n  
-        > $S_t$ = $S_0$exp[($\mu$ - $\sigma^2$ /2)t + $\sigma$($W_t$)] \n
-        
-
-                
-                    """)
-
-    st.markdown("""
-
-    > $S_t$ = $S_0$exp[($\mu$ - $\sigma^2$/2)t + $\sigma$($W_t$)]
-
-                """)
+with tab2:
+    
 
 
     with st.form(key="my_form1"):
         mu = st.number_input('la derivé <mu>', step=0.1,min_value=0.1)
-        sigma = st.number_input('la volatilité <sigma>', step=0.1, min_value=0.1)
-        M = st.number_input('le nombre de simalation', step=1,min_value=1)
-        S0 = st.number_input('Le prix initil du stock', step=1, min_value=1)
-        n = st.number_input('La periode', step=1, min_value=50)
+        sigma = st.slider('la volatilité <sigma>', step=0.1, min_value=0.1)
+       
+        M = st.slider('Le nombre de simulation', min_value=1, max_value=1000, value=50, step=1 )
+        S0 = st.slider('Le prix initil du stock', min_value=1, max_value=1000, value=50, step=1)
+        n = st.slider('La periode', min_value=1, max_value=250, value=50, step=1)
         st.form_submit_button("Simuler")
 
 
@@ -240,29 +203,5 @@ with tab4:
     st.write(St)
 
 
-    st.subheader("Mon code : :female-technologist: ")
 
-    code = '''
-    dt = T/n
-    St = np.exp(
-        (mu - sigma ** 2 / 2 ) * dt
-        + sigma * np.random.normal(0, np.sqrt(dt), size = (M,n)).T
-    )
-    St = np.vstack([np.ones(M), St])
-    St = S0 * St.cumprod(axis=0)
-    time = np.linspace(0, T, n+1)
-    tt = np.full(shape=(M, n+1), fill_value=time).T
-    plt.plot(tt, St)
-    plt.show()
-    '''
-    st.code(code, 
-
-    language='python')
-    st.markdown(
-        """
-    ---
-
-    Realisé par Aboulaala Maria                  
-
-        """
-    )
+    
